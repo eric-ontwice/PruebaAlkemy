@@ -1,3 +1,4 @@
+-- CREATE DATABASE prueba
 -- USE prueba
 
 -- CREATE TABLE USERS(
