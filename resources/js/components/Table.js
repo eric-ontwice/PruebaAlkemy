@@ -15,12 +15,12 @@ export default class Table extends Component {
         this.llenarInfoUsuario = this.llenarInfoUsuario.bind(this);
         // Este enlace es necesario para hacer que `this` funcione en el callback
     }
-    async handleUpdate(e){
+    async handleUpdate(e) {
         let txtNombre = document.getElementById('txtNombre');
         let id = e.target.getAttribute('idusuario');
         let txtApellido = document.getElementById('txtApellido');
         let newName = txtNombre.value;
-        let newLastName  = txtApellido.value;
+        let newLastName = txtApellido.value;
         let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const requestOptions = {
             method: 'PUT',
@@ -30,15 +30,38 @@ export default class Table extends Component {
                 "X-Requested-With": "XMLHttpRequest",
                 "X-CSRF-TOKEN": token
             },
-            body: JSON.stringify({ id:id, nuevoNombre : newName, nuevoApellido : newLastName})
+            body: JSON.stringify({ id: id, nuevoNombre: newName, nuevoApellido: newLastName })
         };
-        await fetch('/usuarios/update/',requestOptions).
+        await fetch('/usuarios/update/', requestOptions).
             then(response => response.json())
             .then(data => {
-                alert(data)
+                
+                if (data.mensaje['nuevoNombre'] != undefined) {
+                    alert(data.mensaje['nuevoNombre'])
+                }
+                else if(data.mensaje['nuevoApellido'] != undefined)
+                    alert(data.mensaje['nuevoApellido'])
+                else{
+                    const index = this.state.usuarios.findIndex(user => user.id == id);
+                    let usuarios = this.state.usuarios;
+                    usuarios[index].nombre = newName;
+                    usuarios[index].apellido = newLastName;
+                    txtNombre.value = "";
+                    txtApellido.value ="";
+                    this.setState({usuarios:usuarios});
+                    alert(data.mensaje)
+                    this.closeModal();
+                }
+                    
+
             })
     }
-    async handleAdd(e){
+     closeModal() {
+        document.getElementsByClassName("modal-backdrop")[0].style.display = "none"
+        document.getElementById("updateModal").style.display = "none"
+        document.getElementById("updateModal").classList.remove("show")
+    }
+    async handleAdd(e) {
         e.preventDefault(e);
         let name = document.getElementById('nombreUsuario');
         let lastName = document.getElementById('apellidoUsuario');
@@ -53,21 +76,31 @@ export default class Table extends Component {
                 "X-Requested-With": "XMLHttpRequest",
                 "X-CSRF-TOKEN": token
             },
-            body: JSON.stringify({ nameUser : name.value, lastNameUser : lastName.value})
+            body: JSON.stringify({ nameUser: name.value, lastNameUser: lastName.value })
         };
-       await fetch('/usuarios/create/', requestOptions)
-                    .then(response => response.json())
-                    .then(data => {
-                        const nuevo = {
-                            id: data.id,
-                            nombre: name.value,
-                            apellido: lastName.value
-                        }
-                        
-                        this.setState(prevState => ({ usuarios: [...prevState.usuarios, nuevo] }))
-                        alert(data.mensaje)
+        await fetch('/usuarios/create/', requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                const nuevo = {
+                    id: data.id,
+                    nombre: name.value,
+                    apellido: lastName.value
+                }
 
-                    });
+
+                if (data.id === undefined) {
+                    if (data.mensaje['nameUser'] != undefined)
+                        alert(data.mensaje['nameUser'])
+                    else if (data.mensaje['lastNameUser'] != undefined)
+                        alert(data.mensaje['lastNameUser'])
+                }
+
+                else {
+                    this.setState(prevState => ({ usuarios: [...prevState.usuarios, nuevo] }))
+                    alert(data.mensaje)
+                }
+
+            });
 
 
     }
@@ -92,7 +125,7 @@ export default class Table extends Component {
                 "X-CSRF-TOKEN": token
             }
         };
-        const response = await fetch('/usuarios/delete/'+id, requestOptions)
+        const response = await fetch('/usuarios/delete/' + id, requestOptions)
             .then(response => response.json())
             .then(data => {
                 this.setState({
@@ -103,19 +136,17 @@ export default class Table extends Component {
 
 
     }
-   async llenarInfoUsuario(e){
-
-        let txtNombre = document.getElementById('txtNombre');
-        let txtApellido = document.getElementById('txtApellido');
-        txtNombre.setAttribute('value','');
-        txtApellido.setAttribute('value','');
+    async llenarInfoUsuario(e) {
+        
+        let modalNombre = document.getElementById('modalNombre');
         let id = e.target.getAttribute('idUsuario');
         let btnUpdate = document.getElementById('btnUpdate');
-        btnUpdate.setAttribute('idusuario',id);
-        const response = await fetch('/usuarios/getUsuario/'+id);
-        const usuario = await response.json();
-        txtNombre.setAttribute('value',usuario.nombre);
-        txtApellido.setAttribute('value',usuario.apellido);
+        btnUpdate.setAttribute('idusuario', id);
+        const response = await fetch('/usuarios/getUsuario/' + id);
+        let usuario = await response.json();
+        console.log(usuario);
+        modalNombre.innerHTML = "UPDATE USER '" + usuario.nombre + " "+usuario.apellido + "'"
+
     }
     async componentDidMount() {
         const response = await fetch('/usuarios/getUsuarios');
@@ -149,7 +180,7 @@ export default class Table extends Component {
                     <button className="btn btn-success" data-toggle="modal" data-target="#myModal">ADD</button>
                 </div>
                 <Modal handleAdd={this.handleAdd}></Modal>
-                <UpdateModal handleUpdate={this.handleUpdate}/>
+                <UpdateModal handleUpdate={this.handleUpdate} />
             </div>
 
 

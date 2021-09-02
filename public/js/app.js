@@ -66979,6 +66979,8 @@ var Table = /*#__PURE__*/function (_Component) {
     key: "handleUpdate",
     value: function () {
       var _handleUpdate = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee(e) {
+        var _this2 = this;
+
         var txtNombre, id, txtApellido, newName, newLastName, token, requestOptions;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee$(_context) {
           while (1) {
@@ -67008,7 +67010,27 @@ var Table = /*#__PURE__*/function (_Component) {
                 return fetch('/usuarios/update/', requestOptions).then(function (response) {
                   return response.json();
                 }).then(function (data) {
-                  alert(data);
+                  if (data.mensaje['nuevoNombre'] != undefined) {
+                    alert(data.mensaje['nuevoNombre']);
+                  } else if (data.mensaje['nuevoApellido'] != undefined) alert(data.mensaje['nuevoApellido']);else {
+                    var index = _this2.state.usuarios.findIndex(function (user) {
+                      return user.id == id;
+                    });
+
+                    var usuarios = _this2.state.usuarios;
+                    usuarios[index].nombre = newName;
+                    usuarios[index].apellido = newLastName;
+                    txtNombre.value = "";
+                    txtApellido.value = "";
+
+                    _this2.setState({
+                      usuarios: usuarios
+                    });
+
+                    alert(data.mensaje);
+
+                    _this2.closeModal();
+                  }
                 });
 
               case 9:
@@ -67026,10 +67048,17 @@ var Table = /*#__PURE__*/function (_Component) {
       return handleUpdate;
     }()
   }, {
+    key: "closeModal",
+    value: function closeModal() {
+      document.getElementsByClassName("modal-backdrop")[0].style.display = "none";
+      document.getElementById("updateModal").style.display = "none";
+      document.getElementById("updateModal").classList.remove("show");
+    }
+  }, {
     key: "handleAdd",
     value: function () {
       var _handleAdd = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee2(e) {
-        var _this2 = this;
+        var _this3 = this;
 
         var name, lastName, token, requestOptions;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee2$(_context2) {
@@ -67065,13 +67094,17 @@ var Table = /*#__PURE__*/function (_Component) {
                     apellido: lastName.value
                   };
 
-                  _this2.setState(function (prevState) {
-                    return {
-                      usuarios: [].concat(_toConsumableArray(prevState.usuarios), [nuevo])
-                    };
-                  });
+                  if (data.id === undefined) {
+                    if (data.mensaje['nameUser'] != undefined) alert(data.mensaje['nameUser']);else if (data.mensaje['lastNameUser'] != undefined) alert(data.mensaje['lastNameUser']);
+                  } else {
+                    _this3.setState(function (prevState) {
+                      return {
+                        usuarios: [].concat(_toConsumableArray(prevState.usuarios), [nuevo])
+                      };
+                    });
 
-                  alert(data.mensaje);
+                    alert(data.mensaje);
+                  }
                 });
 
               case 9:
@@ -67092,7 +67125,7 @@ var Table = /*#__PURE__*/function (_Component) {
     key: "handleDelete",
     value: function () {
       var _handleDelete = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(e) {
-        var _this3 = this;
+        var _this4 = this;
 
         var id, token, index, cont, requestOptions, response;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
@@ -67124,8 +67157,8 @@ var Table = /*#__PURE__*/function (_Component) {
                 return fetch('/usuarios/delete/' + id, requestOptions).then(function (response) {
                   return response.json();
                 }).then(function (data) {
-                  _this3.setState({
-                    usuarios: _this3.state.usuarios.filter(function (user) {
+                  _this4.setState({
+                    usuarios: _this4.state.usuarios.filter(function (user) {
                       return user.id != id;
                     })
                   });
@@ -67154,32 +67187,29 @@ var Table = /*#__PURE__*/function (_Component) {
     key: "llenarInfoUsuario",
     value: function () {
       var _llenarInfoUsuario = _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(e) {
-        var txtNombre, txtApellido, id, btnUpdate, response, usuario;
+        var modalNombre, id, btnUpdate, response, usuario;
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
           while (1) {
             switch (_context4.prev = _context4.next) {
               case 0:
-                txtNombre = document.getElementById('txtNombre');
-                txtApellido = document.getElementById('txtApellido');
-                txtNombre.setAttribute('value', '');
-                txtApellido.setAttribute('value', '');
+                modalNombre = document.getElementById('modalNombre');
                 id = e.target.getAttribute('idUsuario');
                 btnUpdate = document.getElementById('btnUpdate');
                 btnUpdate.setAttribute('idusuario', id);
-                _context4.next = 9;
+                _context4.next = 6;
                 return fetch('/usuarios/getUsuario/' + id);
 
-              case 9:
+              case 6:
                 response = _context4.sent;
-                _context4.next = 12;
+                _context4.next = 9;
                 return response.json();
 
-              case 12:
+              case 9:
                 usuario = _context4.sent;
-                txtNombre.setAttribute('value', usuario.nombre);
-                txtApellido.setAttribute('value', usuario.apellido);
+                console.log(usuario);
+                modalNombre.innerHTML = "UPDATE USER '" + usuario.nombre + " " + usuario.apellido + "'";
 
-              case 15:
+              case 12:
               case "end":
                 return _context4.stop();
             }
@@ -67233,7 +67263,7 @@ var Table = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this4 = this;
+      var _this5 = this;
 
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
         className: "row"
@@ -67249,9 +67279,9 @@ var Table = /*#__PURE__*/function (_Component) {
         scope: "col"
       }, "Accion"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("tbody", null, this.state.usuarios.map(function (user) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_FileTableComponent__WEBPACK_IMPORTED_MODULE_3__["default"], {
-          llenarInfoUsuario: _this4.llenarInfoUsuario,
+          llenarInfoUsuario: _this5.llenarInfoUsuario,
           key: user.id,
-          handleDelete: _this4.handleDelete,
+          handleDelete: _this5.handleDelete,
           id: user.id,
           nombre: user.nombre,
           apellido: user.apellido
@@ -67346,8 +67376,9 @@ var UpdateModal = /*#__PURE__*/function (_React$Component) {
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "modal-header"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
-        className: "modal-title"
-      }, "UPDATE THIS USER"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        className: "modal-title",
+        id: "modalNombre"
+      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "button",
         className: "close",
         "data-dismiss": "modal",
@@ -67388,7 +67419,7 @@ var UpdateModal = /*#__PURE__*/function (_React$Component) {
         idusuario: "",
         onClick: this.props.handleUpdate,
         className: "btn btn-primary"
-      }, "ADD"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+      }, "UPDATE"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "button",
         className: "btn btn-secondary",
         "data-dismiss": "modal"

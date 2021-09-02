@@ -23,8 +23,9 @@ class LoginController extends Controller
             'username' => 'required',
             'password' => 'required',
         ]);
+        
         if ($validator->fails()) {
-            return redirect('/');
+            return redirect()->back()->withErrors($validator->errors());
         } else {
             $correcto = Admin::where('usuario', $request->username)->where('contrasena', $request->password)->count();
             if ($correcto > 0) {
@@ -32,5 +33,6 @@ class LoginController extends Controller
                 return redirect('/dashboard');
             }
         }
+        
     }
 }
